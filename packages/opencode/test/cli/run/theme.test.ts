@@ -59,6 +59,12 @@ function spread(color: RGBA) {
   return Math.max(r, g, b) - Math.min(r, g, b)
 }
 
+function expectIndexed(color: unknown) {
+  const value = expectRgba(color)
+  expect(value.intent).toBe("indexed")
+  expect(value.slot).toBeLessThan(256)
+}
+
 test("falls back when palette lookup fails", async () => {
   expect(await resolveRunTheme(renderer({ fail: true }))).toBe(RUN_THEME_FALLBACK)
 })
@@ -71,10 +77,10 @@ test("returns syntax styles and indexed splash colors", async () => {
     expect(theme.block.subtleSyntax).toBeDefined()
     expect([...theme.block.syntax!.getAllStyles()].length).toBeGreaterThan(0)
     expect([...theme.block.subtleSyntax!.getAllStyles()].length).toBeGreaterThan(0)
-    expect(RGBA.getIntentTag(expectRgba(theme.splash.left))).toBeLessThan(256)
-    expect(RGBA.getIntentTag(expectRgba(theme.splash.right))).toBeLessThan(256)
-    expect(RGBA.getIntentTag(expectRgba(theme.splash.leftShadow))).toBeLessThan(256)
-    expect(RGBA.getIntentTag(expectRgba(theme.splash.rightShadow))).toBeLessThan(256)
+    expectIndexed(theme.splash.left)
+    expectIndexed(theme.splash.right)
+    expectIndexed(theme.splash.leftShadow)
+    expectIndexed(theme.splash.rightShadow)
     expectRgba(theme.footer.highlight)
     expectRgba(theme.footer.surface)
   } finally {
